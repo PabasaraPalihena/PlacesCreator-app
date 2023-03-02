@@ -4,7 +4,7 @@ import UserItem from "./UserItem";
 import "./UserList.css";
 
 export default function UserList(props) {
-  if (props.items.length == 0) {
+  if (props.items.length === 0) {
     return (
       <div className="center">
         <h2>Not Found any User</h2>

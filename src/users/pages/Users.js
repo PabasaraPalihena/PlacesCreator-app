@@ -7,7 +7,7 @@ export default function Users() {
       id: "1234",
       name: "Robert Smith",
       image:
-        "https://www.cdc.gov/cancer/prostate/images/man-1200x630.jpg?_=21491",
+        "https://media.istockphoto.com/id/1200677760/photo/portrait-of-handsome-smiling-young-man-with-crossed-arms.jpg?s=612x612&w=0&k=20&c=g_ZmKDpK9VEEzWw4vJ6O577ENGLTOcrvYeiLxi8mVuo=",
       place: 3,
     },
   ];
