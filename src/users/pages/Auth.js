@@ -8,7 +8,7 @@ import {
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
 } from "../../shared/util/validators";
-import { useForm } from "../../shared/hooks/form-hook";
+import { useForm } from "../../shared/hooks/form-hooks";
 import "./Auth.css";
 
 const Auth = () => {
