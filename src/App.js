@@ -17,7 +17,7 @@ function App() {
           <Route path="/" element={<Users />} />
           <Route path="/places/new" element={<NewPlace />} />
           <Route path="/:userID/places" element={<UserPlaces />} />
-          <Route path="/places/:placeID" element={<UpdatePlace />} />
+          <Route path="/places/:placeId" element={<UpdatePlace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
