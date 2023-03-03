@@ -29,6 +29,19 @@ const DUMMY_PLACES = [
     },
     creator: "u2",
   },
+  {
+    id: "p3",
+    title: "Sigiriya",
+    description: "UNESCO ranks Sigiriya as the 8th Wonder of the World!",
+    imageUrl:
+      "https://cdn.worldghoomo.com/wp-content/uploads/2020/04/Sigiriya-Travel-Guide.jpg",
+    address: "Rock front, Sigiriya 21120",
+    location: {
+      lat: 7.956944,
+      lng: 80.75972,
+    },
+    creator: "u1",
+  },
 ];
 
 const UserPlaces = () => {
