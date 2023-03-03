@@ -50,9 +50,7 @@ function App() {
     >
       <Router>
         <MainNavigation />
-        <main>
-          <Routes>{routes}</Routes>
-        </main>
+        <main>{routes}</main>
       </Router>
     </AuthContext.Provider>
   );
