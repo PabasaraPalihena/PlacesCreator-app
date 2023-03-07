@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const placeRoutes = require("./routes/places");
+const HttpError = require("./models/httpError");
 
 const app = express();
 
@@ -11,6 +12,14 @@ app.use(bodyParser.json());
 app.use("/api/places", placeRoutes);
 
 //Error handling
+app.use((req, res, next) => {
+  const error = new HttpError(
+    "Could not find a place for the provided user id.",
+    404
+  );
+  throw error;
+});
+
 app.use((error, req, res, next) => {
   if (res.headerSent) {
     return next(error);
