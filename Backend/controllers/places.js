@@ -41,4 +41,6 @@ exports.getPlaceByUserId = (req, res, next) => {
       404
     );
   }
+
+  res.json({ places });
 };
