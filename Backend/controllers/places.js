@@ -16,24 +16,24 @@ let DUMMY_PLACES = [
   },
 ];
 
-exports.getPlacesById = (req, res, next) => {
+exports.getPlaceById = (req, res, next) => {
   const placeId = req.params.pid; // { pid: 'p1' }
 
-  const places = DUMMY_PLACES.filter((p) => {
+  const place = DUMMY_PLACES.find((p) => {
     return p.id === placeId;
   });
 
-  if (!places) {
+  if (!place) {
     throw new HttpError("Could not find a places for the provided id.", 404);
   }
 
-  res.json({ places });
+  res.json({ place });
 };
 
-exports.getPlaceByUserId = (req, res, next) => {
+exports.getPlacesByUserId = (req, res, next) => {
   const userId = req.params.uid;
 
-  const places = DUMMY_PLACES.find((p) => {
+  const places = DUMMY_PLACES.filter((p) => {
     return p.creator === userId;
   });
 
