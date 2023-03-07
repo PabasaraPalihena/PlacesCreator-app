@@ -51,7 +51,6 @@ exports.createPlace = (req, res, next) => {
   const error = validationResults(req);
 
   if (!error.isEmpty()) {
-    console.log(error);
     throw new HttpError("Invalid input passed", 422);
   }
   const { title, description, coordinates, address, creator } = req.body;
@@ -71,6 +70,12 @@ exports.createPlace = (req, res, next) => {
 };
 
 exports.updatePlace = (req, res, next) => {
+  const error = validationResults(req);
+
+  if (!error.isEmpty()) {
+    throw new HttpError("Invalid input passed", 422);
+  }
+
   const { title, description } = req.body;
   const placeId = req.params.pid;
 
@@ -86,6 +91,10 @@ exports.updatePlace = (req, res, next) => {
 
 exports.deletePlace = (req, res, next) => {
   const placeId = req.params.pid;
+
+  if (!DUMMY_PLACES.find((p) => p.id === placeId)) {
+    throw new HttpError("Could not find a place for that Id", 404);
+  }
   DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId);
   res.status(200).json({ message: "Deleted place." });
 };
