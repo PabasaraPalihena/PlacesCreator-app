@@ -6,7 +6,7 @@ const placeRoutes = require("./routes/places");
 const app = express();
 
 //Mount routes
-app.use("api/places", placeRoutes);
+app.use("/api/places", placeRoutes);
 
 //Error handling
 app.use((error, req, res, next) => {
