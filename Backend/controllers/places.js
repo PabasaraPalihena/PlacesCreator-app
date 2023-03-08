@@ -1,6 +1,7 @@
 const uuid = require("uuid");
 const { validationResults } = require("express-validator");
 const HttpError = require("../models/httpError");
+const place = require("../models/place");
 
 let DUMMY_PLACES = [
   {
@@ -47,7 +48,7 @@ exports.getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
-exports.createPlace = (req, res, next) => {
+exports.createPlace = async (req, res, next) => {
   const error = validationResults(req);
 
   if (!error.isEmpty()) {
@@ -55,16 +56,22 @@ exports.createPlace = (req, res, next) => {
   }
   const { title, description, coordinates, address, creator } = req.body;
 
-  const createdPlace = {
-    id: uuid(),
+  const createdPlace = new place({
     title,
     description,
     location: coordinates,
+    image:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg",
     address,
     creator,
-  };
+  });
 
-  DUMMY_PLACES.push(createdPlace);
+  try {
+    await createdPlace.save();
+  } catch (err) {
+    const error = new HttpError("Failed creating place.try again", 500);
+    return next(error);
+  }
 
   res.status(201).json({ place: createdPlace });
 };
