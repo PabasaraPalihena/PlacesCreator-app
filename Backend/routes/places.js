@@ -3,6 +3,7 @@ const { check } = require("express-validator");
 const router = express.Router();
 
 const {
+  getPlaces,
   getPlaceById,
   getPlacesByUserId,
   createPlace,
@@ -10,6 +11,7 @@ const {
   deletePlace,
 } = require("../controllers/places");
 
+router.get("/", getPlaces);
 router.get(
   "/:pid",
   [

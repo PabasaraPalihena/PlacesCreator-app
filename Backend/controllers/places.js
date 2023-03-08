@@ -200,14 +200,14 @@ exports.deletePlace = async (req, res, next) => {
     place = await Place.findById(placeId);
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not delete place.",
+      "Something went wrong, could not found place.",
       500
     );
     return next(error);
   }
 
   try {
-    await place.remove();
+    await place.deleteOne();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete place.",
@@ -217,4 +217,42 @@ exports.deletePlace = async (req, res, next) => {
   }
 
   res.status(200).json({ message: "Deleted place." });
+};
+
+// exports.deletePlace = async (req, res, next) => {
+//   try {
+//     const place = await Place.findByIdAndDelete(req.params.id);
+
+//     if (!place) {
+//       return res.status(404).json({
+//         success: false,
+//         msg: "Could not find a place with the given ID",
+//       });
+//     }
+//     res.status(200).json({
+//       success: true,
+//       data: place,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       msg: "Server error",
+//     });
+//   }
+// };
+
+exports.getPlaces = async (req, res) => {
+  try {
+    const place = await Place.find();
+    return res.status(200).json({
+      success: true,
+      count: place.length,
+      data: place,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: "Server error",
+    });
+  }
 };
