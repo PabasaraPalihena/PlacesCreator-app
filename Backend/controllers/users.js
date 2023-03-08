@@ -33,7 +33,7 @@ exports.signup = async (req, res, next) => {
     return next(new HttpError("Invalid input passed", 422));
   }
 
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   let existingUser;
   try {
@@ -53,7 +53,7 @@ exports.signup = async (req, res, next) => {
     email,
     image: "https://live.staticflickr.com/7631/26849088292_36fc52ee90_b.jpg",
     password,
-    places,
+    places: [],
   });
 
   try {
@@ -65,29 +65,29 @@ exports.signup = async (req, res, next) => {
   res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
-exports.createUser = async (req, res, next) => {
-  const { name, email, password, places } = req.body;
+// exports.createUser = async (req, res, next) => {
+//   const { name, email, password, places } = req.body;
 
-  const createdUser = new User({
-    name,
-    email,
-    image: "https://live.staticflickr.com/7631/26849088292_36fc52ee90_b.jpg",
-    password,
-    places,
-  });
+//   const createdUser = new User({
+//     name,
+//     email,
+//     image: "https://live.staticflickr.com/7631/26849088292_36fc52ee90_b.jpg",
+//     password,
+//     places,
+//   });
 
-  try {
-    const place = await User.create(createdUser);
-    res.status(201).json({
-      success: true,
-      data: place,
-    });
-  } catch (e) {
-    console.log(e);
-    const error = new HttpError("Failed creating place.try again", 500);
-    return next(error);
-  }
-};
+//   try {
+//     const place = await User.create(createdUser);
+//     res.status(201).json({
+//       success: true,
+//       data: place,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//     const error = new HttpError("Failed creating place.try again", 500);
+//     return next(error);
+//   }
+// };
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
