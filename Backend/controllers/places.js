@@ -244,22 +244,63 @@ exports.updatePlace = async (req, res, next) => {
   res.status(200).json({ place: place.toObject({ getters: true }) });
 };
 
+// exports.deletePlace = async (req, res, next) => {
+//   const placeId = req.params.pid;
+
+//   let place;
+//   try {
+//     place = await Place.findById(placeId).populate("creator");
+//   } catch (err) {
+//     const error = new HttpError(
+//       "Something went wrong, could not found place.",
+//       500
+//     );
+//     return next(error);
+//   }
+
+//   if (!place) {
+//     const err = new HttpError("Can not find this place", 404);
+//     return next(err);
+//   }
+//   try {
+//     await place.deleteOne();
+//   } catch (err) {
+//     const error = new HttpError(
+//       "Something went wrong, could not delete place.",
+//       500
+//     );
+//     return next(error);
+//   }
+
+//   res.status(200).json({ message: "Deleted place." });
+// };
+
 exports.deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
 
   let place;
   try {
-    place = await Place.findById(placeId);
+    place = await Place.findById(placeId).populate("creator");
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not found place.",
+      "Something went wrong, could not delete place.",
       500
     );
     return next(error);
   }
 
+  if (!place) {
+    const error = new HttpError("Could not find place for this id.", 404);
+    return next(error);
+  }
+
   try {
-    await place.deleteOne();
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await place.deleteOne({ session: sess });
+    place.creator.places.pull(place);
+    await place.creator.save({ session: sess });
+    await sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete place.",
@@ -270,28 +311,6 @@ exports.deletePlace = async (req, res, next) => {
 
   res.status(200).json({ message: "Deleted place." });
 };
-
-// exports.deletePlace = async (req, res, next) => {
-//   try {
-//     const place = await Place.findByIdAndDelete(req.params.id);
-
-//     if (!place) {
-//       return res.status(404).json({
-//         success: false,
-//         msg: "Could not find a place with the given ID",
-//       });
-//     }
-//     res.status(200).json({
-//       success: true,
-//       data: place,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       msg: "Server error",
-//     });
-//   }
-// };
 
 exports.getPlaces = async (req, res) => {
   try {
