@@ -1,7 +1,9 @@
 const uuid = require("uuid");
 const { validationResult } = require("express-validator");
+const mongoose = require("mongoose");
 const HttpError = require("../models/httpError");
 const Place = require("../models/place");
+const User = require("../models/user");
 
 let DUMMY_PLACES = [
   {
@@ -64,62 +66,110 @@ exports.getPlacesByUserId = async (req, res, next) => {
   res.json({ places: places.map((place) => place.toObject({ getter: true })) });
 };
 
-// exports.createPlace = async (req, res, next) => {
-//   const error = validationResult(req);
-
-//   if (!error.isEmpty()) {
-//     throw new HttpError("Invalid input passed", 422);
-//   }
-//   const { title, description, coordinates, address, creator } = req.body;
-
-//   const createdPlace = new place({
-//     title,
-//     description,
-//     location: coordinates,
-//     image:
-//       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg",
-//     address,
-//     creator,
-//   });
-
-//   try {
-//     await createdPlace.save();
-//   } catch (err) {
-//     const error = new HttpError("Failed creating place.try again", 500);
-//     return next(error);
-//   }
-
-//   res.status(201).json({ place: createdPlace });
-// };
-
 exports.createPlace = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+
   const { title, description, address, creator } = req.body;
 
   const createdPlace = new Place({
     title,
     description,
+    address,
     location: {
       lat: 40.7484474,
       lng: -73.9871516,
     },
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg",
-    address,
     creator,
   });
 
+  let user;
   try {
-    const place = await Place.create(createdPlace);
-    res.status(201).json({
-      success: true,
-      data: place,
-    });
+    user = await User.findById(creator);
   } catch (e) {
-    console.log(e);
-    const error = new HttpError("Failed creating place.try again", 500);
+    const err = new HttpError("Failed to create place", 500);
+    return next(err);
+  }
+
+  if (!user) {
+    const err = new HttpError("User not found", 404);
+    return next(err);
+  }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdPlace.save({ session: sess });
+    user.places.push(createdPlace);
+    await user.save({ session: sess });
+    await sess.commitTransaction();
+  } catch (err) {
+    const error = new HttpError(
+      "Creating place failed, please try again.",
+      500
+    );
     return next(error);
   }
+
+  res.status(201).json({ place: createdPlace });
 };
+
+// exports.createPlace = async (req, res, next) => {
+//   const { title, description, address, creator } = req.body;
+
+//   const createdPlace = new Place({
+//     title,
+//     description,
+//     location: {
+//       lat: 40.7484474,
+//       lng: -73.9871516,
+//     },
+//     image:
+//       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg",
+//     address,
+//     creator,
+//   });
+
+//   let user;
+//   try {
+//     user = await User.findById(creator);
+//   } catch (e) {
+//     const err = new HttpError("Failed to create place", 500);
+//     return next(err);
+//   }
+
+//   if (!user) {
+//     const err = new HttpError("User not found", 404);
+//     return next(err);
+//   }
+
+//   try {
+//     const sess = await mongoose.startSession();
+//     sess.startTransaction();
+//     await createdPlace.save({ session: sess });
+//     // await Place.create(createdPlace,{session:sess});
+//     user.places.push(createdPlace);
+//     await user.save({ session: sess });
+//     // await User.create(createdUser,{session:sess});
+//     await sess.commitTransaction();
+
+//     // const place = await Place.create(createdPlace);
+//     // res.status(201).json({
+//     //   success: true,
+//     //   data: place,
+//     // });
+//   } catch (e) {
+//     console.log(e);
+//     const error = new HttpError("Failed creating place.try again", 500);
+//     return next(error);
+//   }
+// };
 
 // exports.updatePlace = async (req, res, next) => {
 //   const error = validationResult(req);
