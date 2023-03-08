@@ -1,7 +1,7 @@
 const uuid = require("uuid");
 const { validationResults } = require("express-validator");
 const HttpError = require("../models/httpError");
-const place = require("../models/place");
+const Place = require("../models/place");
 
 let DUMMY_PLACES = [
   {
@@ -48,18 +48,44 @@ exports.getPlacesByUserId = (req, res, next) => {
   res.json({ places });
 };
 
+// exports.createPlace = async (req, res, next) => {
+//   const error = validationResults(req);
+
+//   if (!error.isEmpty()) {
+//     throw new HttpError("Invalid input passed", 422);
+//   }
+//   const { title, description, coordinates, address, creator } = req.body;
+
+//   const createdPlace = new place({
+//     title,
+//     description,
+//     location: coordinates,
+//     image:
+//       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg",
+//     address,
+//     creator,
+//   });
+
+//   try {
+//     await createdPlace.save();
+//   } catch (err) {
+//     const error = new HttpError("Failed creating place.try again", 500);
+//     return next(error);
+//   }
+
+//   res.status(201).json({ place: createdPlace });
+// };
+
 exports.createPlace = async (req, res, next) => {
-  const error = validationResults(req);
+  const { title, description, address, creator } = req.body;
 
-  if (!error.isEmpty()) {
-    throw new HttpError("Invalid input passed", 422);
-  }
-  const { title, description, coordinates, address, creator } = req.body;
-
-  const createdPlace = new place({
+  const createdPlace = new Place({
     title,
     description,
-    location: coordinates,
+    location: {
+      lat: 40.7484474,
+      lng: -73.9871516,
+    },
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg",
     address,
@@ -67,13 +93,16 @@ exports.createPlace = async (req, res, next) => {
   });
 
   try {
-    await createdPlace.save();
-  } catch (err) {
+    const place = await Place.create(createdPlace);
+    res.status(201).json({
+      success: true,
+      data: place,
+    });
+  } catch (e) {
+    console.log(e);
     const error = new HttpError("Failed creating place.try again", 500);
     return next(error);
   }
-
-  res.status(201).json({ place: createdPlace });
 };
 
 exports.updatePlace = (req, res, next) => {
