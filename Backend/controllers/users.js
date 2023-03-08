@@ -1,6 +1,7 @@
 const { v4: uuid } = require("uuid");
 const validationResults = require("express-validator");
 const HttpError = require("../models/httpError");
+const User = require("../models/user");
 
 const DUMMY_USERS = [
   {
@@ -15,30 +16,44 @@ exports.getUsers = (req, res, next) => {
   res.json({ users: DUMMY_USERS });
 };
 
-exports.signup = (req, res, next) => {
+exports.signup = async (req, res, next) => {
   const error = validationResults(req);
 
   if (!error.isEmpty()) {
-    throw new HttpError("Invalid input passed", 422);
+    return next(new HttpError("Invalid input passed", 422));
   }
 
-  const { name, email, password } = req.body;
+  const { name, email, password, places } = req.body;
 
-  const hasUser = DUMMY_USERS.find((u) => u.email === email);
-  if (hasUser) {
-    throw new HttpError("Could not create user, email already exists.", 422);
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (e) {
+    const err = new HttpError("Signup failed", 500);
+    return next(err);
   }
 
-  const createdUser = {
-    id: uuid(),
-    name, // name: name
+  if (existingUser) {
+    const err = new HttpError("User already exisit, Please Login", 422);
+    return next(err);
+  }
+
+  const createdUser = new User({
+    name,
     email,
+    image:
+      "https://image.shutterstock.com/image-photo/young-handsome-man-beard-wearing-260nw-1768126784.jpg",
     password,
-  };
+    places,
+  });
 
-  DUMMY_USERS.push(createdUser);
-
-  res.status(201).json({ user: createdUser });
+  try {
+    await createdUser.save();
+  } catch (e) {
+    const err = new HttpError("Signup failed", 500);
+    return next(err);
+  }
+  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
 exports.login = (req, res, next) => {
