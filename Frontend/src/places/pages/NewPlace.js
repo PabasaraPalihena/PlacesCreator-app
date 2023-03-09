@@ -41,7 +41,7 @@ const NewPlace = () => {
     event.preventDefault();
     try {
       await sendRequest(
-        "http://localhost:5000/api/places",
+        "http://localhost:5005/api/places",
         "POST",
         JSON.stringify({
           title: formState.inputs.title.value,
