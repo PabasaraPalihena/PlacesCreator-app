@@ -11,6 +11,7 @@ const {
   deletePlace,
 } = require("../controllers/places");
 const fileUpload = require("../middleware/file-upload");
+const checkAuth = require("../middleware/check-auth");
 
 router.get("/", getPlaces);
 router.get(
@@ -23,6 +24,8 @@ router.get(
   getPlaceById
 );
 router.get("/user/:uid", getPlacesByUserId);
+
+app.use(check);
 router.post("/", fileUpload.single("image"), createPlace);
 router.patch(
   "/:pid",
