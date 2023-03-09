@@ -33,24 +33,55 @@ exports.getPlaceById = async (req, res, next) => {
 exports.getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  let places;
+  // let places;
+  let userWithPlaces;
   try {
-    places = await Place.find({ creator: userId });
-  } catch (e) {
-    const error = new HttpError("Something went wrong, can't find places", 500);
+    userWithPlaces = await User.findById(userId).populate("places");
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching places failed, please try again later.",
+      500
+    );
     return next(error);
   }
 
-  if (!places) {
-    const e = new HttpError(
-      "Could not find a place for the provided user id.",
-      404
+  // if (!places || places.length === 0) {
+  if (!userWithPlaces || userWithPlaces.places.length === 0) {
+    return next(
+      new HttpError("Could not find places for the provided user id.", 404)
     );
-    return next(e);
   }
 
-  res.json({ places: places.map((place) => place.toObject({ getter: true })) });
+  res.json({
+    places: userWithPlaces.places.map((place) =>
+      place.toObject({ getters: true })
+    ),
+  });
 };
+
+// exports.getPlacesByUserId = async (req, res, next) => {
+//   const uid = req.params.uid;
+//   // const uid = "64091efa69e616985e3e65ea";
+//   // console.log(uid);
+
+//   let places;
+//   try {
+//     places = await Place.find({ creator: uid });
+//   } catch (e) {
+//     const error = new HttpError("Something went wrong, can't find places", 500);
+//     return next(error);
+//   }
+
+//   if (!places) {
+//     const e = new HttpError(
+//       "Could not find a place for the provided user id.",
+//       404
+//     );
+//     return next(e);
+//   }
+
+//   res.json({ places: places.map((place) => place.toObject({ getter: true })) });
+// };
 
 exports.createPlace = async (req, res, next) => {
   const errors = validationResult(req);

@@ -31,7 +31,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Users />} />
         <Route path="/places/new" element={<NewPlace />} />
-        <Route path="/:userID/places" element={<UserPlaces />} />
+        <Route path="/:userId/places" element={<UserPlaces />} />
         <Route path="/places/:placeId" element={<UpdatePlace />} />
         <Route path="*" element={<Users />} />
       </Routes>
@@ -40,7 +40,7 @@ function App() {
     routes = (
       <Routes>
         <Route path="/" element={<Users />} />
-        <Route path="/:userID/places" element={<UserPlaces />} />
+        <Route path="/:userId/places" element={<UserPlaces />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="*" element={<Auth />} />
       </Routes>
