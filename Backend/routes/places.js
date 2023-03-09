@@ -25,7 +25,7 @@ router.get(
 );
 router.get("/user/:uid", getPlacesByUserId);
 
-app.use(check);
+router.use(checkAuth);
 router.post("/", fileUpload.single("image"), createPlace);
 router.patch(
   "/:pid",
