@@ -1,4 +1,4 @@
-const uuid = require("uuid");
+const fs = require("fs");
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 const HttpError = require("../models/httpError");
@@ -59,30 +59,6 @@ exports.getPlacesByUserId = async (req, res, next) => {
   });
 };
 
-// exports.getPlacesByUserId = async (req, res, next) => {
-//   const uid = req.params.uid;
-//   // const uid = "64091efa69e616985e3e65ea";
-//   // console.log(uid);
-
-//   let places;
-//   try {
-//     places = await Place.find({ creator: uid });
-//   } catch (e) {
-//     const error = new HttpError("Something went wrong, can't find places", 500);
-//     return next(error);
-//   }
-
-//   if (!places) {
-//     const e = new HttpError(
-//       "Could not find a place for the provided user id.",
-//       404
-//     );
-//     return next(e);
-//   }
-
-//   res.json({ places: places.map((place) => place.toObject({ getter: true })) });
-// };
-
 exports.createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -101,12 +77,11 @@ exports.createPlace = async (req, res, next) => {
       lat: 40.7484474,
       lng: -73.9871516,
     },
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg",
+    image: req.file.path,
     creator,
   });
 
-  //sigiriya
+  // sigiriya
   // const createdPlace = new Place({
   //   title,
   //   description,
@@ -115,8 +90,7 @@ exports.createPlace = async (req, res, next) => {
   //     lat: 7.956944,
   //     lng: 80.75972,
   //   },
-  //   image:
-  //     "https://cdn.worldghoomo.com/wp-content/uploads/2020/04/Sigiriya-Travel-Guide.jpg",
+  //   image: req.file.path,
   //   creator,
   // });
 
@@ -150,92 +124,6 @@ exports.createPlace = async (req, res, next) => {
 
   res.status(201).json({ place: createdPlace });
 };
-
-// exports.createPlace = async (req, res, next) => {
-//   const { title, description, address, creator } = req.body;
-
-//   const createdPlace = new Place({
-//     title,
-//     description,
-//     location: {
-//       lat: 40.7484474,
-//       lng: -73.9871516,
-//     },
-//     image:
-//       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg",
-//     address,
-//     creator,
-//   });
-
-//   let user;
-//   try {
-//     user = await User.findById(creator);
-//   } catch (e) {
-//     const err = new HttpError("Failed to create place", 500);
-//     return next(err);
-//   }
-
-//   if (!user) {
-//     const err = new HttpError("User not found", 404);
-//     return next(err);
-//   }
-
-//   try {
-//     const sess = await mongoose.startSession();
-//     sess.startTransaction();
-//     await createdPlace.save({ session: sess });
-//     // await Place.create(createdPlace,{session:sess});
-//     user.places.push(createdPlace);
-//     await user.save({ session: sess });
-//     // await User.create(createdUser,{session:sess});
-//     await sess.commitTransaction();
-
-//     // const place = await Place.create(createdPlace);
-//     // res.status(201).json({
-//     //   success: true,
-//     //   data: place,
-//     // });
-//   } catch (e) {
-//     console.log(e);
-//     const error = new HttpError("Failed creating place.try again", 500);
-//     return next(error);
-//   }
-// };
-
-// exports.updatePlace = async (req, res, next) => {
-//   const error = validationResult(req);
-
-//   if (!error.isEmpty()) {
-//     throw new HttpError("Invalid input passed", 422);
-//   }
-
-//   const { title, description } = req.body;
-//   const placeId = req.params.pid;
-
-//   try {
-//     const place = await Place.findByIdAndUpdate(placeId, title, description, {
-//       new: true,
-//       runValidators: true,
-//     });
-
-//     if (!place) {
-//       return res.status(404).json({
-//         success: false,
-//         msg: "Could not find a Building with this ID",
-//       });
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       data: building,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       msg: "Server error",
-//     });
-//   }
-// };
 
 exports.updatePlace = async (req, res, next) => {
   const errors = validationResult(req);
@@ -275,37 +163,6 @@ exports.updatePlace = async (req, res, next) => {
   res.status(200).json({ place: place.toObject({ getters: true }) });
 };
 
-// exports.deletePlace = async (req, res, next) => {
-//   const placeId = req.params.pid;
-
-//   let place;
-//   try {
-//     place = await Place.findById(placeId).populate("creator");
-//   } catch (err) {
-//     const error = new HttpError(
-//       "Something went wrong, could not found place.",
-//       500
-//     );
-//     return next(error);
-//   }
-
-//   if (!place) {
-//     const err = new HttpError("Can not find this place", 404);
-//     return next(err);
-//   }
-//   try {
-//     await place.deleteOne();
-//   } catch (err) {
-//     const error = new HttpError(
-//       "Something went wrong, could not delete place.",
-//       500
-//     );
-//     return next(error);
-//   }
-
-//   res.status(200).json({ message: "Deleted place." });
-// };
-
 exports.deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
 
@@ -325,6 +182,8 @@ exports.deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = place.image;
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -339,6 +198,10 @@ exports.deletePlace = async (req, res, next) => {
     );
     return next(error);
   }
+
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
 
   res.status(200).json({ message: "Deleted place." });
 };

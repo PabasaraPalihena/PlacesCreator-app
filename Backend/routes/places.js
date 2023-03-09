@@ -10,6 +10,7 @@ const {
   updatePlace,
   deletePlace,
 } = require("../controllers/places");
+const fileUpload = require("../middleware/file-upload");
 
 router.get("/", getPlaces);
 router.get(
@@ -22,7 +23,7 @@ router.get(
   getPlaceById
 );
 router.get("/user/:uid", getPlacesByUserId);
-router.post("/", createPlace);
+router.post("/", fileUpload.single("image"), createPlace);
 router.patch(
   "/:pid",
   [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
