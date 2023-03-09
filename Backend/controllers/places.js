@@ -106,6 +106,20 @@ exports.createPlace = async (req, res, next) => {
     creator,
   });
 
+  //sigiriya
+  // const createdPlace = new Place({
+  //   title,
+  //   description,
+  //   address,
+  //   location: {
+  //     lat: 7.956944,
+  //     lng: 80.75972,
+  //   },
+  //   image:
+  //     "https://cdn.worldghoomo.com/wp-content/uploads/2020/04/Sigiriya-Travel-Guide.jpg",
+  //   creator,
+  // });
+
   let user;
   try {
     user = await User.findById(creator);
