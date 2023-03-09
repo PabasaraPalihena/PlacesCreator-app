@@ -27,7 +27,7 @@ exports.getPlaceById = async (req, res, next) => {
     return next(e);
   }
 
-  res.json({ place });
+  res.json({ place: place.toObject({ getters: true }) });
 };
 
 exports.getPlacesByUserId = async (req, res, next) => {
