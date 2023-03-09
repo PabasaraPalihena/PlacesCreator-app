@@ -1,5 +1,7 @@
 const { v4: uuid } = require("uuid");
 const { validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
+
 const HttpError = require("../models/httpError");
 const User = require("../models/user");
 
@@ -39,11 +41,19 @@ exports.signup = async (req, res, next) => {
     return next(err);
   }
 
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (e) {
+    const error = new HttpError("Could not create user, please try again", 500);
+    return next(error);
+  }
+
   const createdUser = new User({
     name,
     email,
     image: req.file.path,
-    password,
+    password: hashedPassword,
     places: [],
   });
 
