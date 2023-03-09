@@ -1,6 +1,7 @@
 const { v4: uuid } = require("uuid");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/httpError");
 const User = require("../models/user");
@@ -63,32 +64,23 @@ exports.signup = async (req, res, next) => {
     const err = new HttpError("Signup failed", 500);
     return next(err);
   }
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      "supersecret_dont_share",
+      { expiresIn: "1h" }
+    );
+  } catch (e) {
+    const err = new HttpError("Signup failed", 500);
+    return next(err);
+  }
+
+  res
+    .status(201)
+    .json({ userId: createdUser.id, email: createdUser.email, token: token });
 };
-
-// exports.createUser = async (req, res, next) => {
-//   const { name, email, password, places } = req.body;
-
-//   const createdUser = new User({
-//     name,
-//     email,
-//     image: "https://live.staticflickr.com/7631/26849088292_36fc52ee90_b.jpg",
-//     password,
-//     places,
-//   });
-
-//   try {
-//     const place = await User.create(createdUser);
-//     res.status(201).json({
-//       success: true,
-//       data: place,
-//     });
-//   } catch (e) {
-//     console.log(e);
-//     const error = new HttpError("Failed creating place.try again", 500);
-//     return next(error);
-//   }
-// };
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -105,7 +97,7 @@ exports.login = async (req, res, next) => {
     return next(error);
   }
 
-  if (!existingUser || existingUser.password !== password) {
+  if (!existingUser) {
     const error = new HttpError(
       "Invalid credentials, could not log you in.",
       401
@@ -113,8 +105,40 @@ exports.login = async (req, res, next) => {
     return next(error);
   }
 
+  let isVaildPassword = false;
+  try {
+    isVaildPassword = await bcrypt.compare(password, existingUser.password);
+  } catch (e) {
+    const error = new HttpError(
+      "Could not log you in, Check your credintials",
+      500
+    );
+    return next(error);
+  }
+
+  if (!isVaildPassword) {
+    const error = new HttpError(
+      "Invalid credentials, could not log you in.",
+      401
+    );
+    return next(error);
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: existingUser.id, email: existingUser.email },
+      "supersecret_dont_share",
+      { expiresIn: "1h" }
+    );
+  } catch (e) {
+    const err = new HttpError("Login failed", 500);
+    return next(err);
+  }
+
   res.json({
-    message: "Logged in!",
-    user: existingUser.toObject({ getters: true }),
+    userId: existingUser.id,
+    email: existingUser.email,
+    token: token,
   });
 };
