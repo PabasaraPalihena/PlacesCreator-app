@@ -52,7 +52,7 @@ const NewPlace = () => {
       formData.append("creator", auth.userId);
       formData.append("image", formState.inputs.image.value);
       await sendRequest("http://localhost:5005/api/places", "POST", formData, {
-        Authorization: "Bearer" + auth.token,
+        Authorization: "Bearer " + auth.token,
       });
       navigate("/");
     } catch (err) {}
