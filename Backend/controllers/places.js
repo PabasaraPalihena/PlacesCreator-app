@@ -69,30 +69,30 @@ exports.createPlace = async (req, res, next) => {
 
   const { title, description, address, creator } = req.body;
 
-  // const createdPlace = new Place({
-  //   title,
-  //   description,
-  //   address,
-  //   location: {
-  //     lat: 40.7484474,
-  //     lng: -73.9871516,
-  //   },
-  //   image: req.file.path,
-  //   creator,
-  // });
-
-  // sigiriya
   const createdPlace = new Place({
     title,
     description,
     address,
     location: {
-      lat: 7.956944,
-      lng: 80.75972,
+      lat: 40.7484474,
+      lng: -73.9871516,
     },
     image: req.file.path,
     creator,
   });
+
+  // sigiriya
+  // const createdPlace = new Place({
+  //   title,
+  //   description,
+  //   address,
+  //   location: {
+  //     lat: 7.956944,
+  //     lng: 80.75972,
+  //   },
+  //   image: req.file.path,
+  //   creator,
+  // });
 
   let user;
   try {
