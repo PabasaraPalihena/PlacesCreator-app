@@ -6,6 +6,8 @@ import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { useHttpClient } from "../../shared/hooks/http-hook";
 
+const API = process.env.REACT_APP_API;
+
 const UserPlaces = () => {
   const [loadedPlaces, setLoadedPlaces] = useState();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
@@ -17,7 +19,7 @@ const UserPlaces = () => {
       try {
         console.log(userId);
         const responseData = await sendRequest(
-          `http://localhost:5005/api/places/user/${userId}`
+          `${API}api/places/user/${userId}`
         );
         setLoadedPlaces(responseData.places);
       } catch (err) {}

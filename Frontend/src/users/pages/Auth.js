@@ -16,6 +16,7 @@ import { useHttpClient } from "../../shared/hooks/http-hook";
 import { AuthContext } from "../../shared/context/auth-context";
 import "./Auth.css";
 
+const API = process.env.REACT_APP_API;
 const Auth = () => {
   const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -65,7 +66,7 @@ const Auth = () => {
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
-          "http://localhost:5005/api/users/login",
+          `${API}api/users/login`,
           "POST",
           JSON.stringify({
             email: formState.inputs.email.value,
@@ -85,7 +86,7 @@ const Auth = () => {
         formData.append("password", formState.inputs.password.value);
         formData.append("image", formState.inputs.image.value);
         const responseData = await sendRequest(
-          "http://localhost:5005/api/users/signup",
+          `${API}api/users/signup`,
           "POST",
           formData
         );
