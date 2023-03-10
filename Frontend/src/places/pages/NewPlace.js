@@ -34,6 +34,14 @@ const NewPlace = () => {
         value: "",
         isValid: false,
       },
+      lat: {
+        value: null,
+        isValid: false,
+      },
+      lng: {
+        value: null,
+        isValid: false,
+      },
       image: {
         value: null,
         isValid: false,
@@ -51,13 +59,18 @@ const NewPlace = () => {
       formData.append("title", formState.inputs.title.value);
       formData.append("description", formState.inputs.description.value);
       formData.append("address", formState.inputs.address.value);
+      formData.append("lat", formState.inputs.lat.value);
+      formData.append("lng", formState.inputs.lng.value);
       formData.append("creator", auth.userId);
       formData.append("image", formState.inputs.image.value);
+      console.log("formData");
       await sendRequest(`${API}api/places`, "POST", formData, {
         Authorization: "Bearer " + auth.token,
       });
       navigate("/");
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -88,6 +101,24 @@ const NewPlace = () => {
           label="Address"
           validators={[VALIDATOR_REQUIRE()]}
           errorText="Please enter a valid address."
+          onInput={inputHandler}
+        />
+        <Input
+          id="lat"
+          type="Number"
+          element="input"
+          label="Lat"
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText="Please enter a location lat"
+          onInput={inputHandler}
+        />
+        <Input
+          id="lng"
+          type="Number"
+          element="input"
+          label="Lng"
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText="Please enter a location lng"
           onInput={inputHandler}
         />
         <ImageUpload
